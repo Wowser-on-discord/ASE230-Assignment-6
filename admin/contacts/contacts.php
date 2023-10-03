@@ -1,16 +1,18 @@
 <?php
 
     function getAllItems() {
-        $fileReading = fopen("../../data/team.csv", "r");
+        $fileReading = fopen("../../data/contacts.csv", "r");
 
         while (($data = fgetcsv($fileReading)) !== false) {
             $name = $data[0];
-            $role = $data[1];
-            $description = $data[2];
+            $email = $data[1];
+            $subject = $data[2];
+            $message = $data[3];
             
             echo "$name:<br>";
-            echo "$role<br>";
-            echo "$description<br><br>";
+            echo "$email<br>";
+            echo "$subject<br>";
+            echo "$message<br><br>";
         }
 
         fclose($fileReading);
@@ -19,17 +21,19 @@
 
     function getItem() {
         $itemFound = false;
-        $fileReading = fopen("../../data/team.csv", "r");
+        $fileReading = fopen("../../data/contacts.csv", "r");
 
         while (($data = fgetcsv($fileReading)) !== false) {
             $name = $data[0];
-            $role = $data[1];
-            $description = $data[2];
+            $email = $data[1];
+            $subject = $data[2];
+            $message = $data[3];
 
             if ($name === $_POST['getName']) {
                 echo "$name:<br>";
-                echo "$role<br>";
-                echo "$description<br><br>";
+                echo "$email<br>";
+                echo "$subject<br>";
+                echo "$message<br><br>";
                 $itemFound = true;
             } 
         }
@@ -43,36 +47,38 @@
 
 
     function createItem() {
-    if (!empty($_POST['createName']) && !empty($_POST['createRole']) && !empty($_POST['createDescription'])) {
-        $fileWriting = fopen("../../data/team.csv", "a");
+        if (!empty($_POST['createName']) && !empty($_POST['createEmail']) && !empty($_POST['createSubject']) && !empty($_POST['createMessage'])) {
+            $fileWriting = fopen("../../data/contacts.csv", "a");
 
-        fputcsv($fileWriting, [$_POST['createName'], $_POST['createRole'], $_POST['createDescription']]);
+            fputcsv($fileWriting, [$_POST['createName'], $_POST['createEmail'], $_POST['createSubject'], $_POST['createMessage']]);
 
-        fclose($fileWriting);
+            fclose($fileWriting);
 
-        echo "The name, role, and description has been added successfully!";
-        } else {
-            echo "The name, role, and description has NOT been added successfully!";
-        }
+            echo "The name, email, subject, and message has been added successfully!";
+            } else {
+                echo "The name, email, subject, and message has NOT been added successfully!";
+            }
     }
 
 
     function modifyItem() {
-        if (!empty($_POST['originalName']) && !empty($_POST['modifiedName']) && !empty($_POST['modifiedRole']) && !empty($_POST['modifiedDescription'])) {
+        if (!empty($_POST['originalName']) && !empty($_POST['modifiedName']) && !empty($_POST['modifiedEmail']) && !empty($_POST['modifiedSubject']) && !empty($_POST['modifiedMessage'])) {
             $originalName = $_POST['originalName']; 
             $modifiedName = $_POST['modifiedName']; 
-            $modifiedRole = $_POST['modifiedRole']; 
-            $modifiedDescription = $_POST['modifiedDescription']; 
+            $modifiedEmail = $_POST['modifiedEmail']; 
+            $modifiedSubject = $_POST['modifiedSubject']; 
+            $modifiedMessage = $_POST['modifiedMessage'];
             $modified = false;
-            $fileReading = fopen("../../data/team.csv", "r");
-            $fileWriting = fopen("../../data/team_temp.csv", "w");
+            $fileReading = fopen("../../data/contacts.csv", "r");
+            $fileWriting = fopen("../../data/contacts_temp.csv", "w");
 
             if ($fileReading !== false) {
                 while (($data = fgetcsv($fileReading)) !== false) {
                     if ($data[0] === $originalName) {
                         $data[0] = $modifiedName;
-                        $data[1] = $modifiedRole;
-                        $data[2] = $modifiedDescription;
+                        $data[1] = $modifiedEmail;
+                        $data[2] = $modifiedSubject;
+                        $data[3] = $modifiedMessage;
                         $modified = true;
                     }
                     fputcsv($fileWriting, $data);
@@ -81,7 +87,7 @@
 
                 if ($modified) {
                     fclose($fileWriting);
-                    if(rename("../../data/team_temp.csv", "../../data/team.csv")) {
+                    if(rename("../../data/contacts_temp.csv", "../../data/contacts.csv")) {
                         echo "The modification has been added successfully!";
                     }
                 } else {
@@ -97,8 +103,8 @@
         if (isset($_POST['deleteButton'])) {
             $deleted = false;
             $deleteName = $_POST['deleteName']; 
-            $fileReading = fopen("../../data/team.csv", "r");
-            $fileWriting = fopen("../../data/team_temp.csv", "w");
+            $fileReading = fopen("../../data/contacts.csv", "r");
+            $fileWriting = fopen("../../data/contacts_temp.csv", "w");
 
             if ($fileReading !== false) {
                 $items = [];
@@ -117,7 +123,7 @@
                     }
                     fclose($fileWriting);
 
-                    if(rename("../../data/team_temp.csv", "../../data/team.csv")) {
+                    if(rename("../../data/contacts_temp.csv", "../../data/contacts.csv")) {
                         echo "The deletion has been added successfully!";
                     }
                 } else {
@@ -142,11 +148,12 @@
         } else if (isset($_POST['originalName'])) {
             modifyItem();
             echo '<br /><br />';
-        } else if (isset($_POST['createName']) && isset($_POST['createRole']) && isset($_POST['createDescription'])) {
+        } else if (isset($_POST['createName']) && isset($_POST['createEmail']) && isset($_POST['createSubject']) && isset($_POST['createMessage'])) {
             createItem();
             echo '<br /><br />';
         }
     }
+
 ?>
 
 
@@ -155,7 +162,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>team.php</title>
+    <title>contacts.php</title>
 </head>
 <body>
     <form method="POST">
@@ -174,10 +181,12 @@
         <br /><strong>Item to be added:</strong><br />
         Name:<br />
         <input type="text" name="createName" required /><br /><br />
-        Role:<br />
-        <input type="text" name="createRole" required /><br /><br />
-        Description:<br />
-        <input type="text" name="createDescription" required /><br /><br />
+        Email:<br />
+        <input type="text" name="createEmail" required /><br /><br />
+        Subject:<br />
+        <input type="text" name="createSubject" required /><br /><br />
+        Message:<br />
+        <input type="text" name="createMessage" required /><br /><br />
         <button type="submit" name="createButton">Add these values</button>
     </form><br />
 
@@ -193,10 +202,12 @@
         <input type="text" name="originalName" required /><br /><br />
         New Name:<br />
         <input type="text" name="modifiedName" required /><br /><br />
-        New Role:<br />
-        <input type="text" name="modifiedRole" required /><br /><br />
-        New Description:<br />
-        <input type="text" name="modifiedDescription" required /><br /><br />
+        New Email:<br />
+        <input type="text" name="modifiedEmail" required /><br /><br />
+        New Subject:<br />
+        <input type="text" name="modifiedSubject" required /><br /><br />
+        New Message:<br />
+        <input type="text" name="modifiedMessage" required /><br /><br />
         <button type="submit" name="modifyButton">Modify this value</button>
     </form>
 
